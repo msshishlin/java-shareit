@@ -1,44 +1,43 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.booking.model;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDate;
 
 /**
- * Трансферный объект для сущности "Бронь".
+ * Бронь.
  */
 @Builder(toBuilder = true)
 @Data
-public final class BookingDto {
+public final class Booking {
     /**
      * Идентификатор брони.
      */
-    private final long id;
+    private long id;
 
     /**
      * Дата начала бронирования.
      */
-    private final LocalDate startDate;
+    private LocalDate startDate;
 
     /**
      * Дата окончания бронирования.
      */
-    private final LocalDate endDate;
+    private LocalDate endDate;
 
     /**
      * Идентификатор забронированной вещи.
      */
-    private final long itemId;
+    private long itemId;
 
     /**
      * Идентификатор пользователя, осуществившего бронь.
      */
-    private final boolean bookerId;
+    private boolean bookerId;
 
     /**
      * Статус брони.
      */
-    private final BookingStatus status;
+    private BookingStatus status;
 }

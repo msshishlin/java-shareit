@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Builder(toBuilder = true)
 @Data
-public class UpdateItemDto {
+public final class UpdateItemDto {
     /**
      * Название вещи.
      */

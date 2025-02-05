@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Builder(toBuilder = true)
 @Data
-public class UpdateUserDto {
+public final class UpdateUserDto {
     /**
      * Имя пользователя.
      */

@@ -16,7 +16,7 @@ import ru.practicum.shareit.user.service.UserService;
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @RestController
-public class UserController {
+public final class UserController {
     /**
      * Сервис для работы с пользователями.
      */
