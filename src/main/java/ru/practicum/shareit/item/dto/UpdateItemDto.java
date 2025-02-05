@@ -4,16 +4,11 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * Трансферный объект для сущности "Вещь".
+ * Трансферный объект для запроса обновления вещи.
  */
 @Builder(toBuilder = true)
 @Data
-public final class ItemDto {
-    /**
-     * Идентификатор вещи.
-     */
-    private final long id;
-
+public class UpdateItemDto {
     /**
      * Название вещи.
      */
