@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.model;
 
 import lombok.Builder;
 import lombok.Data;
@@ -6,28 +6,28 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * Трансферный объект для сущности "Запрос вещи".
+ * Запрос вещи.
  */
 @Builder(toBuilder = true)
 @Data
-public final class ItemRequestDto {
+public final class ItemRequest {
     /**
      * Идентификатор запроса.
      */
-    private final long id;
+    private long id;
 
     /**
      * Описание требуемой вещи.
      */
-    private final String description;
+    private String description;
 
     /**
      * Идентификатор пользователя, создавшего запрос.
      */
-    private final long requesterId;
+    private long requesterId;
 
     /**
      * Дата и время создания запроса.
      */
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 }
