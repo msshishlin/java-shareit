@@ -4,6 +4,7 @@ import ru.practicum.shareit.item.dto.CreateItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 
@@ -23,7 +24,7 @@ public final class ItemMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .available(dto.getAvailable())
-                .ownerId(ownerId)
+                .owner(User.builder().id(ownerId).build())
                 .build();
     }
 
@@ -41,7 +42,7 @@ public final class ItemMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .available(dto.getAvailable())
-                .ownerId(ownerId)
+                .owner(User.builder().id(ownerId).build())
                 .build();
     }
 

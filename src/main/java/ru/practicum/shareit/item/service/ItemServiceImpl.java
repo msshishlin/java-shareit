@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -35,8 +36,8 @@ public final class ItemServiceImpl implements ItemService {
      */
     @Override
     public Item createItem(Item item) {
-        throwIfUserNotFound(item.getOwnerId());
-        return itemRepository.createItem(item);
+        throwIfUserNotFound(item.getOwner().getId());
+        return itemRepository.save(item);
     }
 
     /**
@@ -48,7 +49,7 @@ public final class ItemServiceImpl implements ItemService {
     @Override
     public Collection<Item> getUserItems(long userId) {
         throwIfUserNotFound(userId);
-        return itemRepository.getUserItems(userId);
+        return itemRepository.findByOwnerId(userId);
     }
 
     /**
@@ -60,13 +61,18 @@ public final class ItemServiceImpl implements ItemService {
      */
     @Override
     public Item getItemById(long itemId, long ownerId) {
-        Optional<Item> itemOptional = itemRepository.getItemById(itemId);
+        Optional<Item> itemOptional = itemRepository.findById(itemId);
 
         if (itemOptional.isEmpty()) {
             throw new NotFoundException(String.format("Вещь с id = %d не найдена", itemId));
         }
 
-        return itemOptional.get();
+        Item item = itemOptional.get();
+        if (item.getOwner().getId() != ownerId) {
+            throw new AccessDeniedException(String.format("Доступ к вещи с id = %d запрещен", itemId));
+        }
+
+        return item;
     }
 
     /**
@@ -81,7 +87,7 @@ public final class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
-        return itemRepository.search(text);
+        return itemRepository.findByNameOrDescriptionContainingIgnoreCase(text);
     }
 
     /**
@@ -92,24 +98,24 @@ public final class ItemServiceImpl implements ItemService {
      */
     @Override
     public Item updateItem(Item item) {
-        throwIfItemNotFound(item.getId());
-        throwIfUserNotFound(item.getOwnerId());
+        Item oldItem = getItemById(item.getId(), item.getOwner().getId());
 
-        return itemRepository.updateItem(item);
+        if (item.getName() != null && !item.getName().isBlank()) {
+            oldItem.setName(item.getName());
+        }
+
+        if (item.getDescription() != null && !item.getDescription().isBlank()) {
+            oldItem.setDescription(item.getDescription());
+        }
+
+        if (item.getAvailable() != null) {
+            oldItem.setAvailable(item.getAvailable());
+        }
+
+        return itemRepository.save(oldItem);
     }
 
     //region Facilities
-
-    /**
-     * Выбросить исключение, если вещь не найдена.
-     *
-     * @param itemId идентификатор вещи.
-     */
-    private void throwIfItemNotFound(long itemId) {
-        if (this.itemRepository.getItemById(itemId).isEmpty()) {
-            throw new NotFoundException(String.format("Вещь с id = %d не найдена", itemId));
-        }
-    }
 
     /**
      * Выбросить исключение, если пользователей не найден.
@@ -117,7 +123,7 @@ public final class ItemServiceImpl implements ItemService {
      * @param userId идентификатор пользователя.
      */
     private void throwIfUserNotFound(long userId) {
-        if (this.userRepository.getUserById(userId).isEmpty()) {
+        if (this.userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
         }
     }
