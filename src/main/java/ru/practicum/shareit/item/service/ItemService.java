@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
@@ -22,7 +23,15 @@ public interface ItemService {
      * @param userId идентификатор пользователя.
      * @return список вещей пользователя.
      */
-    Collection<Item> getUserItems(long userId);
+    Collection<ExtendedItemDto> getUserItems(long userId);
+
+    /**
+     * Получить вещь по её идентификатору.
+     *
+     * @param itemId  идентификатор вещи.
+     * @return вещь.
+     */
+    Item getItemById(long itemId);
 
     /**
      * Получить вещь по её идентификатору.

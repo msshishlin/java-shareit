@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CreateItemDto;
+import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -15,9 +16,9 @@ import java.util.Collection;
 /**
  * Контроллер для запросов к вещам.
  */
-@RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
+@RestController
 public final class ItemController {
     /**
      * Сервис для работы с вещами.
@@ -44,8 +45,8 @@ public final class ItemController {
      * @return список вещей пользователя.
      */
     @GetMapping
-    public Collection<ItemDto> getUserItems(@RequestHeader(name = "X-Sharer-User-Id") long userId) {
-        return ItemMapper.mapToItemDtoCollection(itemService.getUserItems(userId));
+    public Collection<ExtendedItemDto> getUserItems(@RequestHeader(name = "X-Sharer-User-Id") long userId) {
+        return itemService.getUserItems(userId);
     }
 
     /**

@@ -2,15 +2,18 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ExtendedItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 /**
  * Сервис для работы с вещами.
@@ -18,6 +21,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public final class ItemServiceImpl implements ItemService {
+    /**
+     * Хранилище броней.
+     */
+    private final BookingRepository bookingRepository;
+
     /**
      * Хранилище вещей.
      */
@@ -47,9 +55,24 @@ public final class ItemServiceImpl implements ItemService {
      * @return список вещей пользователя.
      */
     @Override
-    public Collection<Item> getUserItems(long userId) {
+    public Collection<ExtendedItemDto> getUserItems(long userId) {
         throwIfUserNotFound(userId);
-        return itemRepository.findByOwnerId(userId);
+
+        Collection<Item> items = itemRepository.findByOwnerId(userId);
+        Collection<Booking> bookings = bookingRepository.findByItemIn(items);
+
+        return ItemMapper.mapToExtendedItemDtoCollection(items, bookings);
+    }
+
+    /**
+     * Получить вещь по её идентификатору.
+     *
+     * @param itemId идентификатор вещи.
+     * @return вещь.
+     */
+    @Override
+    public Item getItemById(long itemId) {
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Вещь с id = %d не найдена", itemId)));
     }
 
     /**
@@ -61,13 +84,8 @@ public final class ItemServiceImpl implements ItemService {
      */
     @Override
     public Item getItemById(long itemId, long ownerId) {
-        Optional<Item> itemOptional = itemRepository.findById(itemId);
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Вещь с id = %d не найдена", itemId)));
 
-        if (itemOptional.isEmpty()) {
-            throw new NotFoundException(String.format("Вещь с id = %d не найдена", itemId));
-        }
-
-        Item item = itemOptional.get();
         if (item.getOwner().getId() != ownerId) {
             throw new AccessDeniedException(String.format("Доступ к вещи с id = %d запрещен", itemId));
         }
@@ -123,7 +141,7 @@ public final class ItemServiceImpl implements ItemService {
      * @param userId идентификатор пользователя.
      */
     private void throwIfUserNotFound(long userId) {
-        if (this.userRepository.findById(userId).isEmpty()) {
+        if (!this.userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
         }
     }
