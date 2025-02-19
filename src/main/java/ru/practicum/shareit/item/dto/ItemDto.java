@@ -3,6 +3,8 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Collection;
+
 /**
  * Трансферный объект для сущности "Вещь".
  */
@@ -28,4 +30,9 @@ public final class ItemDto {
      * Признак доступности вещи для аренды.
      */
     private final Boolean available;
+
+    /**
+     * Комментарии к вещи.
+     */
+    private Collection<String> comments;
 }

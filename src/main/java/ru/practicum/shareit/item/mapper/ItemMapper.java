@@ -76,7 +76,8 @@ public final class ItemMapper {
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getAvailable());
+                .available(item.getAvailable())
+                .comments(item.getComments());
 
         itemBookings.stream()
                 .filter(b -> b.getStart().isBefore(LocalDateTime.now()) && b.getEnd().isAfter(LocalDateTime.now()))

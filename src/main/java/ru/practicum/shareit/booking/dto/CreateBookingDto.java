@@ -1,9 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,7 +9,6 @@ import java.time.LocalDateTime;
 /**
  * Трансферный объект для запроса бронирования вещи.
  */
-@Builder(toBuilder = true)
 @Data
 public final class CreateBookingDto {
     /**
@@ -23,7 +20,7 @@ public final class CreateBookingDto {
     /**
      * Дата начала бронирования.
      */
-    @FutureOrPresent(message = "Дата начала бронирования не может быть меньше текущей")
+//    @FutureOrPresent(message = "Дата начала бронирования не может быть меньше текущей")
     @NotNull(message = "Дата начала бронирования не может быть пустой")
     private final LocalDateTime start;
 

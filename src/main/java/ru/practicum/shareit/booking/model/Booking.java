@@ -47,7 +47,7 @@ public final class Booking {
     /**
      * Пользователь, осуществивший бронь.
      */
-    @JoinColumn(name = "booker_id")
+    @JoinColumn(name = "booker_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User booker;
@@ -55,7 +55,7 @@ public final class Booking {
     /**
      * Забронированная вещь.
      */
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private Item item;

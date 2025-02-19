@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 /**
  * Расширенная версия трансферного объекта для сущности "Вещь".
@@ -30,6 +31,11 @@ public final class ExtendedItemDto {
      * Признак доступности вещи для аренды.
      */
     private final Boolean available;
+
+    /**
+     * Комментарии к вещи.
+     */
+    private Collection<String> comments;
 
     /**
      * Дата окончания предыдущего бронирования.

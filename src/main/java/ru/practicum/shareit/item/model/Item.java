@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.List;
+
 /**
  * Вещь.
  */
@@ -48,4 +50,13 @@ public final class Item {
     @ManyToOne(fetch = FetchType.LAZY)
     @ToString.Exclude
     private User owner;
+
+    /**
+     * Комментарии к вещи.
+     */
+    @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
+    @Column(name = "text")
+    @ElementCollection
+    @ToString.Exclude
+    private List<String> comments;
 }

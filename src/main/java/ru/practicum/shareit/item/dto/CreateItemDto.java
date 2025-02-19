@@ -2,13 +2,11 @@ package ru.practicum.shareit.item.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 import lombok.Data;
 
 /**
  * Трансферный объект для запроса создания вещи.
  */
-@Builder(toBuilder = true)
 @Data
 public final class CreateItemDto {
     /**

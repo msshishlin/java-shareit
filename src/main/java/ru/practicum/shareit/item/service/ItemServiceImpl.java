@@ -5,13 +5,17 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.CommentException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -25,6 +29,11 @@ public final class ItemServiceImpl implements ItemService {
      * Хранилище броней.
      */
     private final BookingRepository bookingRepository;
+
+    /**
+     * Хранилище комментариев.
+     */
+    private final CommentRepository commentRepository;
 
     /**
      * Хранилище вещей.
@@ -71,8 +80,12 @@ public final class ItemServiceImpl implements ItemService {
      * @return вещь.
      */
     @Override
-    public Item getItemById(long itemId) {
-        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Вещь с id = %d не найдена", itemId)));
+    public ExtendedItemDto getItemById(long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(String.format("Вещь с id = %d не найдена", itemId)));
+
+        Collection<Booking> bookings = bookingRepository.findByItemId(itemId);
+
+        return ItemMapper.mapToExtendedItemDto(item, bookings);
     }
 
     /**
@@ -131,6 +144,26 @@ public final class ItemServiceImpl implements ItemService {
         }
 
         return itemRepository.save(oldItem);
+    }
+
+    /**
+     * Добавить комментарий.
+     *
+     * @param comment комментарий.
+     * @return комментарий.
+     */
+    @Override
+    public Comment addCommentToItem(Comment comment) {
+        Collection<Booking> authorBookings = bookingRepository.findByBookerIdAndItemId(comment.getAuthor().getId(), comment.getItem().getId());
+
+        if (authorBookings.isEmpty() || authorBookings.stream().filter(b -> b.getEnd().isBefore(LocalDateTime.now())).toList().isEmpty()) {
+            throw new CommentException(String.format("Пользователь с id = %d не может оставить комментарии к вещи с id = %d", comment.getAuthor().getId(), comment.getItem().getId()));
+        }
+
+        comment.setItem(itemRepository.findById(comment.getItem().getId()).orElseThrow(() -> new NotFoundException(String.format("Вещь с id = %d не найдена", comment.getItem().getId()))));
+        comment.setAuthor(userRepository.findById(comment.getAuthor().getId()).orElseThrow(() -> new NotFoundException(String.format("Пользователь с id = %d не найден", comment.getAuthor().getId()))));
+
+        return commentRepository.save(comment);
     }
 
     //region Facilities

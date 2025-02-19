@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import ru.practicum.shareit.item.dto.ExtendedItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Collection;
@@ -28,10 +29,10 @@ public interface ItemService {
     /**
      * Получить вещь по её идентификатору.
      *
-     * @param itemId  идентификатор вещи.
+     * @param itemId идентификатор вещи.
      * @return вещь.
      */
-    Item getItemById(long itemId);
+    ExtendedItemDto getItemById(long itemId);
 
     /**
      * Получить вещь по её идентификатору.
@@ -57,4 +58,12 @@ public interface ItemService {
      * @return вещь.
      */
     Item updateItem(Item item);
+
+    /**
+     * Добавить комментарий.
+     *
+     * @param comment комментарий.
+     * @return комментарий.
+     */
+    Comment addCommentToItem(Comment comment);
 }

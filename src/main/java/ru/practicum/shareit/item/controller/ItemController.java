@@ -4,10 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CreateItemDto;
-import ru.practicum.shareit.item.dto.ExtendedItemDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.UpdateItemDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -45,7 +43,7 @@ public final class ItemController {
      * @return список вещей пользователя.
      */
     @GetMapping
-    public Collection<ExtendedItemDto> getUserItems(@RequestHeader(name = "X-Sharer-User-Id") long userId) {
+    public Collection<ExtendedItemDto> getItems(@RequestHeader(name = "X-Sharer-User-Id") long userId) {
         return itemService.getUserItems(userId);
     }
 
@@ -57,8 +55,8 @@ public final class ItemController {
      * @return вещь.
      */
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable long itemId, @RequestHeader(name = "X-Sharer-User-Id") long ownerId) {
-        return ItemMapper.mapToItemDto(itemService.getItemById(itemId, ownerId));
+    public ExtendedItemDto getItemById(@PathVariable long itemId, @RequestHeader(name = "X-Sharer-User-Id") long ownerId) {
+        return itemService.getItemById(itemId);
     }
 
     /**
@@ -83,5 +81,18 @@ public final class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable long itemId, @RequestHeader(name = "X-Sharer-User-Id") long ownerId, @RequestBody @Valid UpdateItemDto dto) {
         return ItemMapper.mapToItemDto(itemService.updateItem(ItemMapper.mapToItem(itemId, ownerId, dto)));
+    }
+
+    /**
+     * Добавить комментарий.
+     *
+     * @param itemId   идентификатор вещи.
+     * @param authorId идентификатор автора.
+     * @param dto      трансферный объект для запроса добавления комментария к вещи.
+     * @return комментарий
+     */
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addCommentToItem(@PathVariable long itemId, @RequestHeader(name = "X-Sharer-User-Id") long authorId, @RequestBody @Valid CreateCommentDto dto) {
+        return CommentMapper.mapToCommentDto(itemService.addCommentToItem(CommentMapper.mapToComment(authorId, itemId, dto)));
     }
 }

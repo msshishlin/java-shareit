@@ -14,6 +14,15 @@ import java.util.List;
  */
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     /**
+     * Получить список всех броней пользователя для конкретной вещи.
+     *
+     * @param bookerId идентификатор пользователя, осуществившего бронь.
+     * @param itemId   идентификатор вещи.
+     * @return список броней.
+     */
+    List<Booking> findByBookerIdAndItemId(long bookerId, long itemId);
+
+    /**
      * Получить список всех броней пользователя, отсортированных по убыванию даты начала бронирования.
      *
      * @param bookerId идентификатор пользователя, осуществившего бронь.
@@ -59,6 +68,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerIdAndStatusOrderByStartDesc(long bookerId, BookingStatus status);
 
     /**
+     * Получить брони для вещи.
+     *
+     * @param itemId идентификатор вещи.
+     * @return список броней.
+     */
+    List<Booking> findByItemId(long itemId);
+
+    /**
+     * Получить брони для коллекции вещей.
+     *
+     * @param items коллекция вещей.
+     * @return список броней.
+     */
+    List<Booking> findByItemIn(Collection<Item> items);
+
+    /**
      * Получить список всех броней владельца вещи, отсортированных по убыванию даты начала бронирования.
      *
      * @param ownerId идентификатор владельца вещи.
@@ -102,12 +127,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * @return список броней.
      */
     List<Booking> findByItemOwnerIdAndStatusOrderByStartDesc(long ownerId, BookingStatus status);
-
-    /**
-     * Получить брони для коллекции вещей.
-     *
-     * @param items коллекция вещей.
-     * @return коллекция броней.
-     */
-    List<Booking> findByItemIn(Collection<Item> items);
 }

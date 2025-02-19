@@ -16,6 +16,12 @@ public final class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleCommentException(final CommentException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Map<String, String> handleAccessDeniedException(final AccessDeniedException ex) {
         return Map.of("error", ex.getMessage());
