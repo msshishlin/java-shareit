@@ -1,51 +1,43 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 /**
  * Контракт для хранилища вещей.
  */
-public interface ItemRepository {
-    /**
-     * Создать вещь.
-     *
-     * @param item вещь.
-     * @return вещь.
-     */
-    Item createItem(Item item);
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
     /**
      * Получить список вещей пользователя.
      *
      * @param userId идентификатор пользователя.
-     * @return список вещей пользователя.
-     */
-    Collection<Item> getUserItems(long userId);
-
-    /**
-     * Получить вещь по её идентификатору.
-     *
-     * @param itemId идентификатор вещи.
-     * @return вещь.
-     */
-    Optional<Item> getItemById(long itemId);
-
-    /**
-     * Поиск вещей.
-     *
-     * @param text текст для поиска.
      * @return список вещей.
      */
-    Collection<Item> search(String text);
+    List<Item> findByOwnerId(long userId);
 
     /**
-     * Обновить вещь.
+     * Поиск доступных вещей по имени или описанию.
      *
-     * @param item вещь.
-     * @return вещь.
+     * @param searchText текст для поиска.
+     * @return список вещей.
      */
-    Item updateItem(Item item);
+    @Query("""
+           SELECT
+                    i
+           FROM
+                    Item i
+           WHERE
+                    i.available = true
+                AND
+                    (
+                        i.name ILIKE %?1%
+                     OR
+                        i.description ILIKE %?1%
+                    )
+           """)
+    List<Item> findByNameOrDescriptionContainingIgnoreCase(String searchText);
 }

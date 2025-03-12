@@ -27,7 +27,7 @@ public final class UserServiceImpl implements UserService {
      */
     @Override
     public User createUser(User user) {
-        return userRepository.createUser(user);
+        return userRepository.save(user);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class UserServiceImpl implements UserService {
      */
     @Override
     public User getUserById(long userId) {
-        Optional<User> userOptional =  userRepository.getUserById(userId);
+        Optional<User> userOptional =  userRepository.findById(userId);
 
         if (userOptional.isEmpty()) {
             throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
@@ -55,8 +55,17 @@ public final class UserServiceImpl implements UserService {
      */
     @Override
     public User updateUser(User user) {
-        throwIfUserNotFound(user.getId());
-        return userRepository.updateUser(user);
+        User oldUser = getUserById(user.getId());
+
+        if (user.getName() != null && !user.getName().isBlank()) {
+            oldUser.setName(user.getName());
+        }
+
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            oldUser.setEmail(user.getEmail());
+        }
+
+        return userRepository.save(oldUser);
     }
 
     /**
@@ -67,7 +76,7 @@ public final class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long userId) {
         throwIfUserNotFound(userId);
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
     }
 
     //region Facilities
@@ -78,7 +87,7 @@ public final class UserServiceImpl implements UserService {
      * @param userId идентификатор пользователя.
      */
     private void throwIfUserNotFound(long userId) {
-        if (this.userRepository.getUserById(userId).isEmpty()) {
+        if (this.userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
         }
     }

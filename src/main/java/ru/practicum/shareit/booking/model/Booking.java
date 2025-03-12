@@ -1,43 +1,62 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Бронь.
  */
+@AllArgsConstructor
 @Builder(toBuilder = true)
-@Data
+@Entity
+@Getter
+@NoArgsConstructor
+@Setter
+@Table(name = "bookings", schema = "public")
+@ToString
 public final class Booking {
     /**
      * Идентификатор брони.
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     /**
      * Дата начала бронирования.
      */
-    private LocalDate startDate;
+    @Column(name = "start_date", nullable = false)
+    private LocalDateTime start;
 
     /**
      * Дата окончания бронирования.
      */
-    private LocalDate endDate;
-
-    /**
-     * Идентификатор забронированной вещи.
-     */
-    private long itemId;
-
-    /**
-     * Идентификатор пользователя, осуществившего бронь.
-     */
-    private boolean bookerId;
+    @Column(name = "end_date", nullable = false)
+    private LocalDateTime end;
 
     /**
      * Статус брони.
      */
+    @Column(name = "status", nullable = false)
     private BookingStatus status;
+
+    /**
+     * Пользователь, осуществивший бронь.
+     */
+    @JoinColumn(name = "booker_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private User booker;
+
+    /**
+     * Забронированная вещь.
+     */
+    @JoinColumn(name = "item_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private Item item;
 }
