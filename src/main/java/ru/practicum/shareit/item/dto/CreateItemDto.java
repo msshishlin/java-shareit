@@ -26,4 +26,9 @@ public final class CreateItemDto {
      */
     @NotNull(message = "Не задан признак доступности вещи для аренды")
     private final Boolean available;
+
+    /**
+     * Идентификатор запроса вещи.
+     */
+    private final Long requestId;
 }

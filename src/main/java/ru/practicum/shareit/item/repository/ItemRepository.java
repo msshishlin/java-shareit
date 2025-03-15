@@ -20,6 +20,14 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByOwnerId(long userId);
 
     /**
+     * Получить список вещей по идентификатору запроса вещи.
+     *
+     * @param requestId идентификатор запроса вещи.
+     * @return список вещей.
+     */
+    List<Item> findByRequestId(long requestId);
+
+    /**
      * Поиск доступных вещей по имени или описанию.
      *
      * @param searchText текст для поиска.

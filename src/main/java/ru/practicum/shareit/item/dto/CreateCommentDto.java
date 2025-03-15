@@ -9,8 +9,8 @@ import org.hibernate.validator.constraints.Length;
 /**
  * Трансферный объект для запроса добавления комментария к вещи.
  */
-@Data
 @AllArgsConstructor
+@Data
 @NoArgsConstructor
 public final class CreateCommentDto {
     /**

@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.UpdateItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -24,12 +25,17 @@ public final class ItemMapper {
      * @return вещь.
      */
     public static Item mapToItem(long ownerId, CreateItemDto dto) {
-        return Item.builder()
+        Item.ItemBuilder itemBuilder = Item.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .available(dto.getAvailable())
-                .owner(User.builder().id(ownerId).build())
-                .build();
+                .owner(User.builder().id(ownerId).build());
+
+        if (dto.getRequestId() != null) {
+            itemBuilder.request(ItemRequest.builder().id(dto.getRequestId()).build());
+        }
+
+        return itemBuilder.build();
     }
 
     /**
