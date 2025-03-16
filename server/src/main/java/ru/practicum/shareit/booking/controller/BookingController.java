@@ -38,19 +38,6 @@ public final class BookingController {
     }
 
     /**
-     * Получить бронь.
-     *
-     * @param userId    идентификатор пользователя.
-     * @param bookingId идентификатор брони.
-     * @return бронь.
-     */
-    @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestHeader(name = "X-Sharer-User-Id") long userId,
-                                 @PathVariable long bookingId) {
-        return BookingMapper.mapToBookingDto(bookingService.getBooking(bookingId, userId));
-    }
-
-    /**
      * Получить коллекцию броней пользователя.
      *
      * @param bookerId идентификатор пользователя, осуществившего бронь.
@@ -74,6 +61,19 @@ public final class BookingController {
     public Collection<BookingDto> getOwnerBookings(@RequestHeader(name = "X-Sharer-User-Id") long ownerId,
                                                    @RequestParam(defaultValue = "ALL") BookingSearchState state) {
         return BookingMapper.mapToBookingDtoCollection(bookingService.getOwnerBookings(ownerId, state));
+    }
+
+    /**
+     * Получить бронь.
+     *
+     * @param userId    идентификатор пользователя.
+     * @param bookingId идентификатор брони.
+     * @return бронь.
+     */
+    @GetMapping("/{bookingId}")
+    public BookingDto getBooking(@RequestHeader(name = "X-Sharer-User-Id") long userId,
+                                 @PathVariable long bookingId) {
+        return BookingMapper.mapToBookingDto(bookingService.getBooking(bookingId, userId));
     }
 
     /**
