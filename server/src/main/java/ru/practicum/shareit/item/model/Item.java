@@ -65,7 +65,7 @@ public final class Item {
      */
     @CollectionTable(name = "comments", joinColumns = @JoinColumn(name = "item_id"))
     @Column(name = "text")
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<String> comments;
 }

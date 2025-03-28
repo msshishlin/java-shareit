@@ -79,7 +79,10 @@ public final class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestWithItemsDto getRequest(long userId, long requestId) {
         throwIfUserNotFound(userId);
-        return ItemRequestMapper.mapToItemRequestWithItemsDto(requestRepository.findByRequesterIdNotOrderByCreatedDesc(userId).getFirst(), itemRepository.findByRequestId(requestId));
+        return ItemRequestMapper.mapToItemRequestWithItemsDto(
+                requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException(String.format("Запрос вещи с id = %d не найден", requestId))),
+                itemRepository.findByRequestId(requestId)
+        );
     }
 
     //region Facilities
