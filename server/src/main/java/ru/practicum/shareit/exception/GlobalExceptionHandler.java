@@ -32,10 +32,4 @@ public final class GlobalExceptionHandler {
     public Map<String, String> handleNotFoundException(final NotFoundException ex) {
         return Map.of("error", ex.getMessage());
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicateEmailException(final DuplicateEmailException ex) {
-        return Map.of("error", ex.getMessage());
-    }
 }

@@ -47,7 +47,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
      * @param before   дата, которая используется для сравнения с датой окончания бронирования.
      * @return список броней.
      */
-    List<Booking> findByBookerIdAndStartAfterAndEndBeforeOrderByStartDesc(long bookerId, LocalDateTime after, LocalDateTime before);
+    List<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(long bookerId, LocalDateTime after, LocalDateTime before);
 
     /**
      * Получить список будущих броней пользователя, отсортированных по убыванию даты начала бронирования.

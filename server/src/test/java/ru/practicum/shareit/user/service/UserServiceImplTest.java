@@ -7,14 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.generator.StringGenerator;
 import ru.practicum.shareit.user.model.User;
-
-import java.util.List;
 
 /**
  * Тесты сервиса для работы с пользователями.
@@ -59,48 +59,89 @@ public final class UserServiceImplTest {
 
     @Test
     void getUserByIdTest() {
-        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
-                .setParameter("id", user.getId());
-
-        User userFromDb = query.getSingleResult();
         User userFromService = userService.getUserById(user.getId());
 
-        MatcherAssert.assertThat(userFromService.getId(), Matchers.equalTo(userFromDb.getId()));
-        MatcherAssert.assertThat(userFromService.getName(), Matchers.equalTo(userFromDb.getName()));
-        MatcherAssert.assertThat(userFromService.getEmail(), Matchers.equalTo(userFromDb.getEmail()));
+        MatcherAssert.assertThat(userFromService.getId(), Matchers.equalTo(user.getId()));
+        MatcherAssert.assertThat(userFromService.getName(), Matchers.equalTo(user.getName()));
+        MatcherAssert.assertThat(userFromService.getEmail(), Matchers.equalTo(user.getEmail()));
+    }
+
+    @Test()
+    void getNonExistentUserById() {
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUserById(Long.MAX_VALUE));
     }
 
     @Test
-    void updateUserTest() {
+    void updateUserNameTest() {
         User updatedUser = User.builder()
                 .id(user.getId())
                 .name(StringGenerator.generateUserName())
-                .email(StringGenerator.generateUserEmail())
                 .build();
-
         userService.updateUser(updatedUser);
 
-        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
-                .setParameter("id", user.getId());
+        User userFromDb = userService.getUserById(user.getId());
 
-        User userFromDb = query.getSingleResult();
-
-        MatcherAssert.assertThat(userFromDb.getId(), Matchers.equalTo(updatedUser.getId()));
+        MatcherAssert.assertThat(userFromDb.getId(), Matchers.equalTo(user.getId()));
         MatcherAssert.assertThat(userFromDb.getName(), Matchers.equalTo(updatedUser.getName()));
+        MatcherAssert.assertThat(userFromDb.getEmail(), Matchers.equalTo(user.getEmail()));
+    }
+
+    @Test
+    void updateUserNameToBlankStringTest() {
+        User updatedUser = User.builder()
+                .id(user.getId())
+                .name("   ")
+                .build();
+        userService.updateUser(updatedUser);
+
+        User userFromDb = userService.getUserById(user.getId());
+
+        MatcherAssert.assertThat(userFromDb.getId(), Matchers.equalTo(user.getId()));
+        MatcherAssert.assertThat(userFromDb.getName(), Matchers.equalTo(user.getName()));
+        MatcherAssert.assertThat(userFromDb.getEmail(), Matchers.equalTo(user.getEmail()));
+    }
+
+    @Test
+    void updateUserEmailTest() {
+        User updatedUser = User.builder()
+                .id(user.getId())
+                .email(StringGenerator.generateUserEmail())
+                .build();
+        userService.updateUser(updatedUser);
+
+        User userFromDb = userService.getUserById(user.getId());
+
+        MatcherAssert.assertThat(userFromDb.getId(), Matchers.equalTo(user.getId()));
+        MatcherAssert.assertThat(userFromDb.getName(), Matchers.equalTo(user.getName()));
         MatcherAssert.assertThat(userFromDb.getEmail(), Matchers.equalTo(updatedUser.getEmail()));
     }
 
     @Test
-    void deleteUserTest() {
-        TypedQuery<User> query = entityManager.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class)
-                .setParameter("id", user.getId());
+    void updateUserEmailToBlankStringTest() {
+        User updatedUser = User.builder()
+                .id(user.getId())
+                .email("   ")
+                .build();
+        userService.updateUser(updatedUser);
 
-        User userBeforeDelete = query.getSingleResult();
+        User userFromDb = userService.getUserById(user.getId());
+
+        MatcherAssert.assertThat(userFromDb.getId(), Matchers.equalTo(user.getId()));
+        MatcherAssert.assertThat(userFromDb.getName(), Matchers.equalTo(user.getName()));
+        MatcherAssert.assertThat(userFromDb.getEmail(), Matchers.equalTo(user.getEmail()));
+    }
+
+    @Test
+    void deleteUserTest() {
+        User userBeforeDelete = userService.getUserById(user.getId());
         MatcherAssert.assertThat(userBeforeDelete, Matchers.notNullValue());
 
         userService.deleteUser(user.getId());
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUserById(user.getId()));
+    }
 
-        List<User> userAfterDelete = query.getResultList();
-        MatcherAssert.assertThat(userAfterDelete.size(), Matchers.equalTo(0));
+    @Test
+    void deleteNonExistentUserTest() {
+        Assertions.assertThrows(NotFoundException.class, () -> userService.deleteUser(Long.MAX_VALUE));
     }
 }

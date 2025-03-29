@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -15,6 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.CommentException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.generator.StringGenerator;
 import ru.practicum.shareit.item.dto.ExtendedItemDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -112,6 +116,11 @@ public class ItemServiceTest {
     }
 
     @Test
+    void getNonExistentUserItemsTest() {
+        Assertions.assertThrows(NotFoundException.class, () -> itemService.getUserItems(Long.MAX_VALUE));
+    }
+
+    @Test
     void getItemByIdTest() {
         ExtendedItemDto itemFromDb = itemService.getItemById(item.getId());
 
@@ -132,6 +141,17 @@ public class ItemServiceTest {
         MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(user.getId()));
         MatcherAssert.assertThat(itemFromDb.getOwner().getName(), Matchers.equalTo(user.getName()));
         MatcherAssert.assertThat(itemFromDb.getOwner().getEmail(), Matchers.equalTo(user.getEmail()));
+    }
+
+    @Test
+    void getItemByIdAndNonExistentUserIdTest() {
+        User otherUser = User.builder()
+                .name(StringGenerator.generateUserName())
+                .email(StringGenerator.generateUserEmail())
+                .build();
+        userService.createUser(otherUser);
+
+        Assertions.assertThrows(AccessDeniedException.class, () -> itemService.getItemById(item.getId(), otherUser.getId()));
     }
 
     @Test
@@ -169,26 +189,105 @@ public class ItemServiceTest {
     }
 
     @Test
-    void updateItemTest() {
+    void searchByNullTest() {
+        Collection<Item> items = itemService.search(null);
+        MatcherAssert.assertThat(items.size(), Matchers.equalTo(0));
+    }
+
+    @Test
+    void searchByBlankTextTest() {
+        Collection<Item> items = itemService.search("   ");
+        MatcherAssert.assertThat(items.size(), Matchers.equalTo(0));
+    }
+
+    @Test
+    void updateItemNameTest() {
         Item updatedItem = Item.builder()
                 .id(item.getId())
                 .name(StringGenerator.generateItemName())
-                .description(StringGenerator.generateItemDescription())
-                .available(false)
-                .owner(user)
+                .owner(item.getOwner())
                 .build();
         itemService.updateItem(updatedItem);
 
-        TypedQuery<Item> query = entityManager.createQuery("SELECT i FROM Item i WHERE i.name = :name", Item.class)
-                .setParameter("name", item.getName());
+        Item itemFromDb = itemService.getItemById(item.getId(), user.getId());
 
-        Item itemFromDb = query.getSingleResult();
-
-        MatcherAssert.assertThat(itemFromDb.getId(), CoreMatchers.not(0));
+        MatcherAssert.assertThat(itemFromDb.getId(), Matchers.equalTo(item.getId()));
         MatcherAssert.assertThat(itemFromDb.getName(), Matchers.equalTo(updatedItem.getName()));
+        MatcherAssert.assertThat(itemFromDb.getDescription(), Matchers.equalTo(item.getDescription()));
+        MatcherAssert.assertThat(itemFromDb.getAvailable(), Matchers.equalTo(item.getAvailable()));
+        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(item.getOwner().getId()));
+    }
+
+    @Test
+    void updateItemNameToBlankStringTest() {
+        Item updatedItem = Item.builder()
+                .id(item.getId())
+                .name("   ")
+                .owner(item.getOwner())
+                .build();
+        itemService.updateItem(updatedItem);
+
+        Item itemFromDb = itemService.getItemById(item.getId(), user.getId());
+
+        MatcherAssert.assertThat(itemFromDb.getId(), Matchers.equalTo(item.getId()));
+        MatcherAssert.assertThat(itemFromDb.getName(), Matchers.equalTo(item.getName()));
+        MatcherAssert.assertThat(itemFromDb.getDescription(), Matchers.equalTo(item.getDescription()));
+        MatcherAssert.assertThat(itemFromDb.getAvailable(), Matchers.equalTo(item.getAvailable()));
+        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(item.getOwner().getId()));
+    }
+
+    @Test
+    void updateItemDescriptionTest() {
+        Item updatedItem = Item.builder()
+                .id(item.getId())
+                .description(StringGenerator.generateItemDescription())
+                .owner(item.getOwner())
+                .build();
+        itemService.updateItem(updatedItem);
+
+        Item itemFromDb = itemService.getItemById(item.getId(), user.getId());
+
+        MatcherAssert.assertThat(itemFromDb.getId(), Matchers.equalTo(item.getId()));
+        MatcherAssert.assertThat(itemFromDb.getName(), Matchers.equalTo(item.getName()));
         MatcherAssert.assertThat(itemFromDb.getDescription(), Matchers.equalTo(updatedItem.getDescription()));
+        MatcherAssert.assertThat(itemFromDb.getAvailable(), Matchers.equalTo(item.getAvailable()));
+        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(item.getOwner().getId()));
+    }
+
+    @Test
+    void updateItemDescriptionToBlankStringTest() {
+        Item updatedItem = Item.builder()
+                .id(item.getId())
+                .description("   ")
+                .owner(item.getOwner())
+                .build();
+        itemService.updateItem(updatedItem);
+
+        Item itemFromDb = itemService.getItemById(item.getId(), user.getId());
+
+        MatcherAssert.assertThat(itemFromDb.getId(), Matchers.equalTo(item.getId()));
+        MatcherAssert.assertThat(itemFromDb.getName(), Matchers.equalTo(item.getName()));
+        MatcherAssert.assertThat(itemFromDb.getDescription(), Matchers.equalTo(item.getDescription()));
+        MatcherAssert.assertThat(itemFromDb.getAvailable(), Matchers.equalTo(item.getAvailable()));
+        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(item.getOwner().getId()));
+    }
+
+    @Test
+    void updateItemAvailabilityStringTest() {
+        Item updatedItem = Item.builder()
+                .id(item.getId())
+                .owner(item.getOwner())
+                .available(false)
+                .build();
+        itemService.updateItem(updatedItem);
+
+        Item itemFromDb = itemService.getItemById(item.getId(), user.getId());
+
+        MatcherAssert.assertThat(itemFromDb.getId(), Matchers.equalTo(item.getId()));
+        MatcherAssert.assertThat(itemFromDb.getName(), Matchers.equalTo(item.getName()));
+        MatcherAssert.assertThat(itemFromDb.getDescription(), Matchers.equalTo(item.getDescription()));
         MatcherAssert.assertThat(itemFromDb.getAvailable(), Matchers.equalTo(updatedItem.getAvailable()));
-        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(updatedItem.getOwner().getId()));
+        MatcherAssert.assertThat(itemFromDb.getOwner().getId(), Matchers.equalTo(item.getOwner().getId()));
     }
 
     @Test
@@ -211,5 +310,46 @@ public class ItemServiceTest {
 
         itemService.addCommentToItem(comment);
         MatcherAssert.assertThat(comment.getId(), Matchers.notNullValue());
+    }
+
+    @Test
+    void addCommentToUnbookedItemTest() {
+        Item otherItem = Item.builder()
+                .name(StringGenerator.generateItemName())
+                .description(StringGenerator.generateItemDescription())
+                .available(true)
+                .owner(user)
+                .build();
+        itemService.createItem(otherItem);
+
+        Comment comment = Comment.builder()
+                .text(StringGenerator.generateCommentText())
+                .author(user)
+                .item(otherItem)
+                .created(LocalDateTime.now())
+                .build();
+
+        Assertions.assertThrows(CommentException.class, () -> itemService.addCommentToItem(comment));
+    }
+
+    @Test
+    void addCommentToNotReturnedItemTest() {
+        Booking booking = Booking.builder()
+                .item(item)
+                .booker(user)
+                .start(LocalDateTime.now().minusDays(3))
+                .end(LocalDateTime.now().plusDays(3))
+                .status(BookingStatus.WAITING)
+                .build();
+        bookingService.createBooking(booking);
+
+        Comment comment = Comment.builder()
+                .text(StringGenerator.generateCommentText())
+                .author(user)
+                .item(item)
+                .created(LocalDateTime.now())
+                .build();
+
+        Assertions.assertThrows(CommentException.class, () -> itemService.addCommentToItem(comment));
     }
 }

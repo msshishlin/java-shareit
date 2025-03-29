@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.generator.StringGenerator;
 import ru.practicum.shareit.request.dto.ItemRequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -91,6 +93,11 @@ public class ItemRequestServiceImplTest {
 
         Collection<ItemRequest> userItemRequests = itemRequestService.getUserItemRequests(user.getId());
         MatcherAssert.assertThat(userItemRequests.size(), Matchers.equalTo(5));
+    }
+
+    @Test
+    void getUserItemRequestsForNonExistentUserTest() {
+        Assertions.assertThrows(NotFoundException.class, () -> itemRequestService.getUserItemRequests(Long.MAX_VALUE));
     }
 
     @Test
